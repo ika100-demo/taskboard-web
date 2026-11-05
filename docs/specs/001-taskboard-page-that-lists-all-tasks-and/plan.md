@@ -10,6 +10,7 @@ tasks:
     covers: [AC-001.5, AC-001.6, AC-001.7, AC-001.9, AC-001.10]
     parallel_safe: true
     depends_on: []
+    done: true
   - id: t2
     title: Server-only task-api client (list, create, timeout, failure mapping)
     files: [app/_lib/task-api.ts, docs/env-vars.md]
