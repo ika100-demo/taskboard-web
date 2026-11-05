@@ -31,6 +31,7 @@ tasks:
     covers: [AC-001.3, AC-001.4, AC-001.10, AC-001.11, AC-001.12]
     parallel_safe: true
     depends_on: [t2]
+    done: true
   - id: t5
     title: Replace the template home page with the board
     files: [app/page.tsx, app/_components/feature-card.tsx, app/_components/icons.tsx, tests/page.test.tsx, e2e/home.spec.ts]
