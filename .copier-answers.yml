@@ -1,0 +1,11 @@
+# Changes here will be overwritten by Copier; AVOID EDITING MANUALLY
+_src_path: gh:ika100/sdlc-foundry/templates/web-nextjs
+description: Web UI for the taskboard system
+docker_registry: ghcr.io/ika100-demo
+github_org: ika100-demo
+needs_observability: true
+node_major: '24'
+owner_team: '@ika100-demo'
+platform_marketplace_ref: main
+port: 3000
+project_name: taskboard-web

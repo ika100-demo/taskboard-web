@@ -1,0 +1,69 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
+
+import ErrorPage from "@/app/error";
+import { SiteFooter } from "@/app/_components/site-footer";
+import { SiteHeader } from "@/app/_components/site-header";
+import RootLayout, { metadata } from "@/app/layout";
+import NotFound from "@/app/not-found";
+
+describe("RootLayout", () => {
+  const html = renderToStaticMarkup(
+    <RootLayout>
+      <p>child content</p>
+    </RootLayout>,
+  );
+
+  it("sets the language and puts the page inside the main landmark", () => {
+    expect(html).toContain('<html lang="en">');
+    expect(html).toMatch(/<main id="main-content"[^>]*>\s*<p>child content<\/p>/);
+  });
+
+  it("starts with a skip link to the main content", () => {
+    expect(html).toMatch(/<body><a class="skip-link" href="#main-content">Skip to content<\/a>/);
+  });
+
+  it("titles pages with the project name", () => {
+    expect(metadata.title).toMatchObject({ default: "taskboard-web" });
+  });
+});
+
+describe("SiteHeader", () => {
+  it("shows the brand mark and the primary navigation", () => {
+    render(<SiteHeader name="demo" links={[{ href: "/api/health", label: "Health" }]} />);
+    expect(screen.getByRole("banner")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "demo" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("navigation", { name: "Primary" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Health" })).toHaveAttribute("href", "/api/health");
+  });
+});
+
+describe("SiteFooter", () => {
+  it("is the contentinfo landmark", () => {
+    render(<SiteFooter name="demo" />);
+    expect(screen.getByRole("contentinfo")).toHaveTextContent("demo");
+  });
+});
+
+describe("NotFound", () => {
+  it("explains the problem and links home", () => {
+    render(<NotFound />);
+    expect(screen.getByRole("heading", { level: 1, name: "This page could not be found" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to the home page" })).toHaveAttribute("href", "/");
+  });
+});
+
+describe("ErrorPage", () => {
+  it("announces the error, logs it and lets the visitor retry", () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const reset = vi.fn();
+    const error = new Error("boom");
+    render(<ErrorPage error={error} reset={reset} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong");
+    expect(log).toHaveBeenCalledWith(error);
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(reset).toHaveBeenCalledTimes(1);
+    log.mockRestore();
+  });
+});

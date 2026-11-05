@@ -1,0 +1,112 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+**taskboard-web** — Web UI for the taskboard system
+
+Owned by @ika100-demo. Next.js (App Router only), TypeScript, pnpm, Node 24 LTS. Container image: `ghcr.io/ika100-demo/taskboard-web`.
+
+## Development Environment
+
+This project uses [devbox](https://www.jetify.com/devbox) to manage the dev environment.
+
+```bash
+devbox shell        # enter the dev environment
+devbox run dev      # next dev on port 3000
+devbox run test     # vitest with coverage
+devbox run quality  # eslint + tsc --noEmit gate
+```
+
+Canonical `devbox run` scripts (configured in `devbox.json`):
+
+| Script | Purpose |
+|---|---|
+| `install` | `pnpm install --frozen-lockfile` |
+| `dev` | Next.js dev server |
+| `build` | `next build` (standalone output) |
+| `test` | `vitest run --coverage` (thresholds: 80% lines/functions) |
+| `test-fast` | `vitest run` without coverage |
+| `lint` | `eslint .` |
+| `lint-fix` | `eslint . --fix` |
+| `typecheck` | `tsc --noEmit` |
+| `quality` | `lint` then `typecheck` — the gate CI runs |
+| `e2e` | Playwright tests in `e2e/` (installs Chromium; starts the app unless `SMOKE_BASE_URL` is set) |
+| `smoke` | the `@smoke` Playwright tests against a running deployment: `SMOKE_BASE_URL=https://<host> devbox run smoke` (`test` and `ci` never run them) |
+| `audit` | `pnpm audit --prod --audit-level high` |
+| `secrets-scan` | detect-secrets against `.secrets.baseline.json` |
+| `security` | `audit` + `secrets-scan` |
+| `secrets-baseline` | refresh `.secrets.baseline.json` with fixed flags (never run `detect-secrets scan` by hand) |
+| `ci` | `quality` + `test` + `security`: the gates CI runs, then `ci-extra` when your repo defines it; run it before every push |
+| `image-build` | Build local image `taskboard-web:scan` |
+| `image-scan` | trivy against `taskboard-web:scan` |
+
+**Rule for every agent (human, CI, and AI): never call `pnpm`, `npm`, `npx`, `node`, `next`, `eslint`, `tsc`, `vitest`, `playwright`, `detect-secrets`, or `trivy` directly. Always go through `devbox run <script>` (add a missing recipe to `devbox.json` rather than bypassing it).**
+
+## Claude Code agents
+
+Agents and slash commands come from the [`ika100/sdlc-foundry`](https://github.com/ika100/sdlc-foundry) marketplace, enabled in `.claude/settings.json`:
+
+- `web@sdlc-foundry` — web coder, tester, deployment, observability, release agents
+- `svc@sdlc-foundry` — product-manager, architect and the other pipeline agents
+- `component@sdlc-foundry` — the commands: `/component:spec`, `plan`, `build`, `ship`, `fix`, `check`, `release`
+- `instance@sdlc-foundry`, `api@sdlc-foundry`, `issue@sdlc-foundry`, `platform@sdlc-foundry` — `/instance:promote`, `/api:list`, `/issue:report`, `/platform:update`
+- `shared@sdlc-foundry` — quality and security agents, the `cplat` launcher
+
+### Common workflows
+
+| Task | Command |
+|---|---|
+| Write a feature spec (first step) | `/component:spec <description>` |
+| Plan the approved spec | `/component:plan <NNN>` |
+| Build it: tests first, verified | `/component:build <NNN>` |
+| All of it unattended: build, PR, merge on green CI, dev | `/component:ship <NNN>` (headless: `cplat headless "/component:ship <NNN>"`) |
+| Where specs stand | `/component:spec --all` |
+| Small change | `/component:fix <description>` |
+| Read-only quality + security audit | `/component:check` |
+| Release | `/component:release` |
+
+### Spec first
+
+A feature starts with a spec, not code ([ADR-026](https://github.com/ika100/sdlc-foundry/blob/main/docs/adr/026-feature-specs.md)): `/component:spec <description>` writes `docs/specs/<NNN>-<slug>/spec.md` with acceptance criteria `AC-<NNN>.<n>` and asks you its open questions; approve it (`/component:spec approve <NNN>`), plan it (`/component:plan <NNN>`), then build it (`/component:build <NNN>`): acceptance tests are written from the criteria first and fail, the code makes them pass, a reviewer checks the result against the spec, and the PR lists every criterion. Tests that name a criterion are the spec in code: never weaken them; change the spec instead (`/component:spec --amend <NNN> <change>`). `/component:spec --all` shows where each spec stands; `devbox run spec-check` validates every spec and traces built ones to their tests (also the warn-only `specs` CI workflow). Small changes and bug fixes (`/component:fix`) need no spec, but stop when they would change a criterion.
+
+## Feature Branch Workflow
+
+Branch prefixes: `feature/`, `fix/`, `chore/`, `docs/`, `refactor/`, `release/`. Slugs: lowercase, hyphens, ≤40 chars. Main is protected; all changes via PR. Required CI checks: `quality`, `test`, `security`, `pr-title`, `docker`. PR titles follow Conventional Commits (`type(scope): description ≤72 chars`).
+
+## Where your additions go
+
+Updates (`/platform:update`) overwrite the skeleton files below. Put your own work next to them, where an update keeps it:
+
+| Updates overwrite | Your additions go in |
+|---|---|
+| the template's recipes in `devbox.json` (including `ci`) | gates: the `ci-extra` recipe (`devbox run ci` and the `ci-extra` CI check run it); other tools: recipes of your own in `devbox.json` (kept) |
+| `.github/workflows/ci.yml` | a workflow file of your own in `.github/workflows/` |
+| `.claude/settings.json` | your own permission entries (allow, ask, deny) in it; they are kept |
+| `CLAUDE.md` | `.claude/project-notes.md` |
+| other skeleton files (Dockerfile, lint config ...) | nowhere: propose the change to the platform (`/issue:report`) |
+
+## Conventions
+
+- **App Router only.** Routes live in `app/`; Pages Router is not supported (ADR-004). Server Components by default; add `"use client"` only where needed.
+- **TypeScript strict.** No `any` without a justifying comment; `devbox run typecheck` must be clean.
+- **Config:** read exclusively from environment variables (see `docs/env-vars.md`). Never expose secrets through `NEXT_PUBLIC_*`.
+- **Probes:** `/api/health` (liveness) and `/api/ready` (readiness) must keep responding.
+- **Observability:** `/api/metrics` (Prometheus), OpenTelemetry via `instrumentation.ts` when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
+- **Tests:** Vitest + Testing Library in `tests/` (`*.test.ts[x]`); Playwright specs in `e2e/` (smoke tests carry `@smoke` in their title).
+- **Docs:** feature specs in `docs/specs/` (index in `docs/backlog.md`), ADRs in `docs/adr/`.
+
+## Docker image pipeline
+
+CI's `docker` job builds the multi-stage, non-root image on every run and pushes on `main` (`latest`, `sha-<short>`) and on `v*.*.*` tags (semver tags). Registry: `ghcr.io/ika100-demo/taskboard-web`, authenticated with `GITHUB_TOKEN`.
+
+## Deployment
+
+This repo ships **only a container image**. Kubernetes manifests, environment wiring (e.g. `API_URL`), replicas, resources and exposure belong to the system's `gitops-app` repo (platform ADR-017): register the component with `/component:add taskboard-web` in the system's repo (needs the GitHub topic `deployable-service`, set by `/component:new`), then `/instance:promote taskboard-web --to <env>`. Change how the service runs by editing its entry under `components:` in that repo's `system.yaml`; change the port, probe paths or user in the Dockerfile/app and update the entry to match.
+
+## Project notes
+
+Project-specific guidance for Claude Code goes in `.claude/project-notes.md`, which is loaded below and never changed by updates.
+
+@.claude/project-notes.md

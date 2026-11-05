@@ -1,0 +1,75 @@
+import { FeatureCard } from "./_components/feature-card";
+import { ActivityIcon, BoxIcon, FlaskIcon, HeartPulseIcon, RocketIcon, SparklesIcon } from "./_components/icons";
+
+export default function HomePage() {
+  return (
+    <>
+      <section className="hero" aria-labelledby="hero-title">
+        <p className="eyebrow">
+          <span className="dot" aria-hidden="true" />
+          Up and running
+        </p>
+        <h1 id="hero-title" className="hero-title">
+          taskboard-web
+        </h1>
+        <p className="lead">Web UI for the taskboard system</p>
+        <div className="actions">
+          <a className="btn btn-primary" href="#get-started">
+            Get started
+          </a>
+          <a className="btn btn-secondary" href="/api/health">
+            Check health
+          </a>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="features-title">
+        <div className="section-head">
+          <h2 id="features-title" className="section-title">
+            What&apos;s included
+          </h2>
+          <p className="section-sub">A production-minded starting point: change this page, keep the foundations.</p>
+        </div>
+        <ul className="grid">
+          <FeatureCard icon={<HeartPulseIcon />} title="Health and readiness">
+            Liveness at <code>/api/health</code> and readiness at <code>/api/ready</code>, ready for Kubernetes probes.
+          </FeatureCard>
+          <FeatureCard icon={<ActivityIcon />} title="Metrics and tracing">
+            Prometheus metrics at <code>/api/metrics</code>; OpenTelemetry traces start when <code>OTEL_EXPORTER_OTLP_ENDPOINT</code> is set.
+          </FeatureCard>
+          <FeatureCard icon={<FlaskIcon />} title="Tested">
+            Vitest unit tests with a coverage gate and Playwright end-to-end checks, run through <code>devbox run test</code>.
+          </FeatureCard>
+          <FeatureCard icon={<BoxIcon />} title="Container-ready">
+            Multi-stage Docker build with a standalone server that runs as a non-root user.
+          </FeatureCard>
+          <FeatureCard icon={<RocketIcon />} title="GitOps delivery">
+            Add it to your application with <code>/gitops:compose add taskboard-web</code>; the GitOps repo renders and deploys it.
+          </FeatureCard>
+          <FeatureCard icon={<SparklesIcon />} title="Accessible by default">
+            Responsive layout, light and dark themes, keyboard focus styles and a skip link, with no UI dependency to maintain.
+          </FeatureCard>
+        </ul>
+      </section>
+
+      <section id="get-started" className="section" aria-labelledby="start-title">
+        <div className="section-head">
+          <h2 id="start-title" className="section-title">
+            Get started
+          </h2>
+        </div>
+        <ol className="steps">
+          <li>
+            Start the dev server with <code>devbox run dev</code>.
+          </li>
+          <li>
+            Edit <code>app/page.tsx</code>; the design tokens live in <code>app/globals.css</code>.
+          </li>
+          <li>
+            Run <code>devbox run quality</code> and <code>devbox run test</code> before you push.
+          </li>
+        </ol>
+      </section>
+    </>
+  );
+}

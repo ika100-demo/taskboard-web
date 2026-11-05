@@ -1,0 +1,27 @@
+# ADR-000: Bootstrap
+
+## Status
+
+Accepted on bootstrap.
+
+## Context
+
+`taskboard-web` was created from the `web-nextjs` Copier template at `ika100/sdlc-foundry`. The template encodes the platform's web conventions:
+
+- Next.js App Router only (platform ADR-004), TypeScript strict
+- pnpm via devbox, `packageManager` pinned (platform ADR-003)
+- Node 24 LTS pinned in `package.json`, `devbox.json` and the Dockerfile (platform ADR-005)
+- Vitest + Testing Library with an 80% coverage gate; Playwright e2e and smoke tests (platform ADR-002, ADR-040)
+- eslint + `tsc --noEmit` as the quality gate
+- Multi-stage, non-root Docker build (standalone output) → `ghcr.io/ika100-demo/taskboard-web`
+- No Kubernetes manifests here: the system's gitops-app repo owns them (platform ADR-017); this repo ships a container image
+- GitHub topic `deployable-service` for ArgoCD discovery
+- Claude Code agents from the `sdlc-foundry` marketplace (`web` + `svc` + `shared`)
+
+## Decision
+
+We adopt the platform conventions verbatim. Any deviation must be justified in a new ADR.
+
+## Consequences
+
+Skeleton updates (CI, devbox recipes, Dockerfile base image, Node bump) arrive through `copier update`; files under `app/`, `tests/`, `docs/adr/` are project-owned and never overwritten.
