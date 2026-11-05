@@ -165,8 +165,9 @@ As a team member, I want clear messages when my input is invalid or the task ser
 
 ## Open questions
 
-- Confirm: the form's visible labels are "Title" and "Due date" and the submit button reads "Add task" (the system spec does not name them). (suggested: yes; affects AC-001.2)
+- ~~Confirm: the form's visible labels are "Title" and "Due date" and the submit button reads "Add task"?~~ Answered: yes, see AC-001.2.
 
 ## Changelog
 
 - 2026-11-05 created
+- 2026-11-05 amended: confirmed the form labels "Title" and "Due date" and the button "Add task" (AC-001.2 unchanged)
