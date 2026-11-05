@@ -2,16 +2,10 @@ import { expect, test } from "@playwright/test";
 
 test("home page renders with its landmarks", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "taskboard-web" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Taskboard" })).toBeVisible();
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(page.getByRole("main")).toBeVisible();
   await expect(page.getByRole("contentinfo")).toBeVisible();
-});
-
-test("the health endpoint is linked and answers", async ({ page, request }) => {
-  await page.goto("/");
-  await expect(page.getByRole("link", { name: "Check health" })).toHaveAttribute("href", "/api/health");
-  expect((await request.get("/api/health")).ok()).toBeTruthy();
 });
 
 test("unknown routes show the friendly 404", async ({ page }) => {

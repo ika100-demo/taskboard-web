@@ -9,6 +9,12 @@ Configuration is read exclusively from environment variables. Defaults below are
 | `PORT` | `3000` | HTTP port the server listens on. |
 | `NODE_ENV` | `production` (in the image) | Node environment. |
 
+## task-api
+
+| Variable | Default | Description |
+|---|---|---|
+| `TASK_API_URL` | `http://localhost:8080` | Base URL of task-api. Server-only (not `NEXT_PUBLIC_`), read per request. Deployed value `http://task-api`, set in the gitops-app. |
+
 ## Observability
 
 | Variable | Default | Description |
