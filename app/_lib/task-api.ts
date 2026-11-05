@@ -32,11 +32,16 @@ async function request(
   op: "list" | "create",
   init: RequestInit,
 ): Promise<Response | null> {
+  const signal = AbortSignal.timeout(TASK_API_TIMEOUT_MS);
+  if (signal.aborted) {
+    logFailure(op, "timeout");
+    return null;
+  }
   try {
     return await fetch(`${taskApiUrl()}/tasks`, {
       ...init,
       cache: "no-store",
-      signal: AbortSignal.timeout(TASK_API_TIMEOUT_MS),
+      signal,
     });
   } catch (err) {
     const name = err instanceof Error ? err.name : "";
