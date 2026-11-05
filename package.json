@@ -1,6 +1,6 @@
 {
   "name": "taskboard-web",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Web UI for the taskboard system",
   "packageManager": "pnpm@11.22.0",
