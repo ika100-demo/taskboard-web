@@ -27,6 +27,11 @@ WORKDIR /app
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
            /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
+# Upgrade Debian apt (2.6.1 in node:24-slim) to >= 2.6.2: fixes CVE-2026-109518 (HIGH) that blocks the release image scan.
+RUN apt-get update \
+    && apt-get install --only-upgrade -y --no-install-recommends apt \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
