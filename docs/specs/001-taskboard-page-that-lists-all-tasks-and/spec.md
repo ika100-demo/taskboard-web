@@ -1,7 +1,7 @@
 ---
 spec_id: 001-taskboard-page-that-lists-all-tasks-and
 title: Taskboard page that lists all tasks and adds a task through task-api
-status: draft
+status: approved
 priority: P1
 shape: web-nextjs
 parent: ika100-demo/taskboard-gitops:002-tasks-in-postgres-and-a-web-ui
@@ -171,3 +171,4 @@ As a team member, I want clear messages when my input is invalid or the task ser
 
 - 2026-11-05 created
 - 2026-11-05 amended: confirmed the form labels "Title" and "Due date" and the button "Add task" (AC-001.2 unchanged)
+- 2026-11-05 approved
